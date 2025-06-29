@@ -1,5 +1,6 @@
-from flask import Flask, make_response, jsonify, request
+from flask import Flask, make_response, jsonify, request, send_from_directory
 from flask_migrate import Migrate
+from flask_cors import CORS
 from sqlalchemy.exc import IntegrityError
 
 from models import db, Episode, Appearance, Guest
@@ -8,6 +9,9 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Enable CORS for all routes
+CORS(app)
+
 migrate = Migrate(app, db)
 
 db.init_app(app)
@@ -15,6 +19,16 @@ db.init_app(app)
 
 @app.route('/')
 def index():
+    return send_from_directory('static', 'index.html')
+
+
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    return send_from_directory('static', filename)
+
+
+@app.route('/')
+def welcome():
     response = make_response(
         '<h1>Welcome to the Late Show API!</h1>',
         200
